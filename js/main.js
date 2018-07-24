@@ -163,9 +163,9 @@ createRestaurantHTML = (restaurant) => {
 
   const neighborhoodDiv = document.createElement('div');
 
-  const neighborhoodSpan = document.createElement('span');
-  neighborhoodSpan.innerHTML = '🏠';
-  neighborhoodDiv.append(neighborhoodSpan);
+  const neighborhoodP = document.createElement('p');
+  neighborhoodP.innerHTML = '🏠';
+  neighborhoodDiv.append(neighborhoodP);
 
   const neighborhood = document.createElement('p');
   neighborhood.innerHTML = restaurant.neighborhood;
@@ -175,9 +175,9 @@ createRestaurantHTML = (restaurant) => {
 
   const addressDiv = document.createElement('div');
 
-  const addressSpan = document.createElement('span');
-  addressSpan.innerHTML = '📌';
-  addressDiv.append(addressSpan);
+  const addressP = document.createElement('p');
+  addressP.innerHTML = '📌';
+  addressDiv.append(addressP);
 
   const address = document.createElement('p');
   address.innerHTML = restaurant.address;
