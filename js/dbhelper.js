@@ -8,27 +8,27 @@ class DBHelper {
    * Change this to restaurants.json file location on your server.
    */
   static get DATABASE_URL() {
-    const port = 8000 // Change this to your server port
-    return `http://localhost:${port}/data/restaurants.json`;
+    const port = 1337 // Change this to your server port
+    return `http://localhost:${port}/restaurants`;
   }
 
   /**
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', DBHelper.DATABASE_URL);
-    xhr.onload = () => {
-      if (xhr.status === 200) { // Got a success response from server!
-        const json = JSON.parse(xhr.responseText);
-        const restaurants = json.restaurants;
-        callback(null, restaurants);
-      } else { // Oops!. Got an error from server.
-        const error = (`Request failed. Returned status of ${xhr.status}`);
-        callback(error, null);
+    fetch(DBHelper.DATABASE_URL).then(response => {
+      //If request is unsuccessfull then throw error.
+      if (!response.ok) {
+        throw new Error(response.statusText);
       }
-    };
-    xhr.send();
+      //converting data in response received from server to json
+      return response.json();
+    }).then(data => {
+      //processing the json data sent from the previous callback function.
+      callback(null, data);
+    }).catch(error => {
+      callback(error, null);
+    });
   }
 
   /**
@@ -157,7 +157,7 @@ class DBHelper {
    * Generate responsive image url for srcSet.
    */
   static genResponsiveImgUrlForRestaurant(restaurant) {
-    let imageId = restaurant.photograph.split('.')[0];
+    let imageId = restaurant.photograph;
     let srcSet = `/img/${imageId}-400_small.jpg 400w, /img/${imageId}-650_medium.jpg 650w, /img/${imageId}-800_large.jpg 800w,`;
     return srcSet;
   }
