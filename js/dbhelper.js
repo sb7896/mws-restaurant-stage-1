@@ -154,10 +154,19 @@ class DBHelper {
   }
 
   /**
+   * Generate responsive image url for srcSet.
+   */
+  static genResponsiveImgUrlForRestaurant(restaurant) {
+    let imageId = restaurant.photograph.split('.')[0];
+    let srcSet = `/img/${imageId}-400_small.jpg 400w, /img/${imageId}-650_medium.jpg 650w, /img/${imageId}-800_large.jpg 800w,`;
+    return srcSet;
+  }
+
+  /**
    * Map marker for a restaurant.
    */
    static mapMarkerForRestaurant(restaurant, map) {
-    // https://leafletjs.com/reference-1.3.0.html#marker  
+    // https://leafletjs.com/reference-1.3.0.html#marker
     const marker = new L.marker([restaurant.latlng.lat, restaurant.latlng.lng],
       {title: restaurant.name,
       alt: restaurant.name,
@@ -165,17 +174,7 @@ class DBHelper {
       })
       marker.addTo(newMap);
     return marker;
-  } 
-  /* static mapMarkerForRestaurant(restaurant, map) {
-    const marker = new google.maps.Marker({
-      position: restaurant.latlng,
-      title: restaurant.name,
-      url: DBHelper.urlForRestaurant(restaurant),
-      map: map,
-      animation: google.maps.Animation.DROP}
-    );
-    return marker;
-  } */
+  }
 
 }
 
