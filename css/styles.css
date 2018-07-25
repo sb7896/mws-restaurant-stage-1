@@ -71,7 +71,8 @@ select:focus, img:focus {
   outline: 2px solid orangered;
 }
 
-#restaurants-list li a:focus {
+#restaurants-list li a:focus,
+#restaurants-list li a:hover {
   background-color: black;
   outline: 2px solid orangered;
 }
