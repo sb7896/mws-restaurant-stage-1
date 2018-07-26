@@ -4,8 +4,8 @@
 class DBHelper {
 
   /**
-   * Database URL.
-   * Change this to restaurants.json file location on your server.
+   * @description
+   * This function will return URL to fetch restaurant data.
    */
   static get DATABASE_URL() {
     const port = 1337 // Change this to your server port
@@ -13,42 +13,103 @@ class DBHelper {
   }
 
   /**
-   * Fetch all restaurants.
+   * @description
+   * This function will create object store name 'restaurants' inside
+   * 'restaurant-reviews' db and stores promise in a dbPromise variable
    */
-  static fetchRestaurants(callback) {
-    fetch(DBHelper.DATABASE_URL).then(response => {
-      //If request is unsuccessfull then throw error.
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      //converting data in response received from server to json
-      return response.json();
-    }).then(data => {
-      //processing the json data sent from the previous callback function.
-      callback(null, data);
-    }).catch(error => {
-      callback(error, null);
+  static initIDB() {
+    this.dbPromise = idb.open('restaurant-reviews', 1, function (upgradeDb) {
+      var reviewsStore = upgradeDb.createObjectStore('restaurantReviews', {
+        keyPath: 'id'
+      });
+      reviewsStore.createIndex('ids', 'id');
     });
   }
 
   /**
-   * Fetch a restaurant by its ID.
+   * @description
+   * This function will return all the restaurant data from indexedDB.
    */
-  static fetchRestaurantById(id, callback) {
-    // fetch all restaurants with proper error handling.
-    DBHelper.fetchRestaurants((error, restaurants) => {
-      if (error) {
-        callback(error, null);
+  static getRestaurantsDataFromIDBCache() {
+    return this.dbPromise.then(db => {
+      var tx = db.transaction('restaurantReviews');
+      var reviewsStore = tx.objectStore('restaurantReviews');
+      return reviewsStore.getAll();
+    })
+  }
+
+  /**
+   * Fetch all restaurants.
+   */
+  static fetchRestaurants(callback) {
+
+    var self = this;
+
+    DBHelper.getRestaurantsDataFromIDBCache().then(restaurants => {
+      /**
+       * Check if restaurant data is already cached in Indexed DB.
+       */
+      if (restaurants.length > 0) {
+        callback(null, restaurants);
+
       } else {
-        const restaurant = restaurants.find(r => r.id == id);
-        if (restaurant) { // Got the restaurant
-          callback(null, restaurant);
-        } else { // Restaurant does not exist in the database
-          callback('Restaurant does not exist', null);
-        }
+        /**
+         * If data is not cached then make a network request.
+         */
+        fetch(DBHelper.DATABASE_URL).then(response => {
+          //If request is unsuccessfull then throw error.
+          if (!response.ok) {
+            throw new Error(response.statusText);
+          }
+          //convert data in response received from server to json.
+          return response.json();
+
+        }).then(restaurants => {
+          //processing the json data sent from the previous callback function.
+          DBHelper.addRestaurantsToIDB(restaurants);
+          callback(null, restaurants);
+
+        }).catch(error => {
+          callback(error, null);
+        });
       }
     });
-  }
+    }
+
+    /**
+     * @description This method will add restaurant data to IDB
+     * @param {string} restaurants - Array of restaurants
+     */
+    static addRestaurantsToIDB (restaurants) {
+      var self = this;
+      restaurants.forEach(restaurant => {
+        self.dbPromise.then(db => {
+          var tx = db.transaction('restaurantReviews', 'readwrite');
+          var reviewsStore = tx.objectStore('restaurantReviews');
+          reviewsStore.put(restaurant);
+          return tx.complete;
+        });
+      });
+    }
+
+    /**
+     * Fetch a restaurant by its ID.
+     */
+    static fetchRestaurantById(id, callback) {
+      // fetch all restaurants with proper error handling.
+      DBHelper.fetchRestaurants((error, restaurants) => {
+        if (error) {
+          callback(error, null);
+        } else {
+          const restaurant = restaurants.find(r => r.id == id);
+          if (restaurant) { // Got the restaurant
+            callback(null, restaurant);
+          } else { // Restaurant does not exist in the database
+            callback('Restaurant does not exist', null);
+          }
+        }
+      });
+    }
 
   /**
    * Fetch restaurants by a cuisine type with proper error handling.

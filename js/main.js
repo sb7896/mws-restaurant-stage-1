@@ -9,6 +9,7 @@ var markers = []
  * and also register the Service Worker.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
+  DBHelper.initIDB(); //Initialize indexed db
   initMap(); // added
   fetchNeighborhoods();
   fetchCuisines();

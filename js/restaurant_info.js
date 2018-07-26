@@ -2,9 +2,10 @@ let restaurant;
 var newMap;
 
 /**
- * Initialize map as soon as the page is loaded.
+ * Initialize map and indexed db as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
+  DBHelper.initIDB(); //Initialize indexed db
   initMap();
 });
 
