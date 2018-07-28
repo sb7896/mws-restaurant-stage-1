@@ -3,19 +3,15 @@
 var browserSync = require('browser-sync').create();
 var del = require('del');
 var gulp = require('gulp');
-// var babel = require('gulp-babel');
-var concat = require('gulp-concat');
-var eslint = require('gulp-eslint');
 var imagemin = require('gulp-imagemin');
 var sourcemaps = require('gulp-sourcemaps');
-// var uglify = require('gulp-uglify');
 var uglifyjs = require('gulp-uglify-es').default;
 var uglifycss = require('gulp-uglifycss');
 var gzip = require('gulp-gzip');
 var webp = require('gulp-webp');
 
-gulp.task('default', ['clean', 'copy-html', 'copy-images', 'jpgtowebp',
-        'styles', 'scripts', 'service-worker', /*'lint', 'manifest'*/
+gulp.task('default', ['clean', 'copy-html', 'copy-icons', 'jpgtowebp',
+        'styles', 'scripts', 'service-worker', 'copy-manifest'
     ],
     function () {
         gulp.watch('./*.html', ['copy-html']);
@@ -31,12 +27,17 @@ gulp.task('default', ['clean', 'copy-html', 'copy-images', 'jpgtowebp',
 gulp.task('dist', [
     'clean',
     'copy-html',
-    // 'copy-images',
+    'copy-icons',
     'jpgtowebp',
     'styles',
     'scripts-dist',
-    'service-worker'
-]);
+    'service-worker',
+    'copy-manifest'
+],function(){
+    browserSync.init({
+        server: './dist'
+    });
+});
 
 gulp.task('clean', function () {
     return del('dist/**', {
@@ -49,11 +50,8 @@ gulp.task('copy-html', function () {
         .pipe(gulp.dest('./dist'));
 });
 
-gulp.task('copy-images', function () {
-    gulp.src('img/*')
-        .pipe(imagemin([
-            imagemin.jpegtran({progressive: true})
-        ]))
+gulp.task('copy-icons', function () {
+    gulp.src('img/**/*.png')
         .pipe(gulp.dest('dist/img'));
 });
 
@@ -69,53 +67,29 @@ gulp.task('jpgtowebp', function () {
 gulp.task('styles', function () {
     gulp.src('css/**/*.css')
         .pipe(uglifycss())
-        // .pipe(gzip())
         .pipe(gulp.dest('dist/css'))
-        // .pipe(browserSync.stream());
 });
 
 gulp.task('scripts', function () {
     gulp.src('js/**/*.js')
         .pipe(sourcemaps.init())
-        // .pipe(babel())
         .pipe(sourcemaps.write())
         .pipe(gulp.dest('dist/js'));
 });
 
 gulp.task('scripts-dist', function () {
     gulp.src('js/**/*.js')
-        // .pipe(sourcemaps.init())
-        // .pipe(babel())
-        // .pipe(concat('minified.js'))
         .pipe(uglifyjs())
-        // .pipe(gzip())
-        // .pipe(sourcemaps.write())
         .pipe(gulp.dest('dist/js'));
 });
 
 gulp.task('service-worker', function () {
     return gulp.src('./serviceworker.js')
-        // .pipe(sourcemaps.init())
         .pipe(uglifyjs())
-        // .pipe(gzip())
-        // .pipe(sourcemaps.write())
         .pipe(gulp.dest('dist'));
 });
 
-gulp.task('lint', function () {
-    return gulp.src(['js/**/*.js'])
-        // eslint() attaches the lint output to the eslint property
-        // of the file object so it can be used by other modules.
-        .pipe(eslint())
-        // eslint.format() outputs the lint results to the console.
-        // Alternatively use eslint.formatEach() (see Docs).
-        .pipe(eslint.format())
-        // To have the process exit with an error code (1) on
-        // lint error, return the stream and pipe to failOnError last.
-        .pipe(eslint.failOnError());
-});
-
-gulp.task('manifest', function () {
+gulp.task('copy-manifest', function () {
     return gulp.src('./manifest.json')
         .pipe(gulp.dest('dist'));
 });

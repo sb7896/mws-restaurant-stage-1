@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
   fetchNeighborhoods();
   fetchCuisines();
   registerServiceWorker();
-  lazyLoadImages();
+  // lazyLoadCSS();
+  lazyLoadImages(); //Fetch image upon scrolling.
 });
 
 /**
@@ -215,7 +216,8 @@ addMarkersToMap = (restaurants = self.restaurants) => {
 };
 
 /**
-* @description This method uses Service Worker API and registers it to make our app work offline.
+* @description
+  This method uses Service Worker API and registers it to make our app work offline.
 */
 registerServiceWorker = () => {
   if ('serviceWorker' in navigator) {
@@ -232,10 +234,33 @@ registerServiceWorker = () => {
   }
 };
 
+/* createLinkTag = (filename) => {
+  var linkTag = document.createElement('link');
+  linkTag.rel = 'stylesheet';
+  linkTag.href = filename;
+  var headTag = document.getElementsByTagName('head')[0];
+  headTag.parentNode.insertBefore(linkTag, headTag);
+} */
+
+/* function loadCSS() {
+  createLinkTag('//normalize-css.googlecode.com/svn/trunk/normalize.css');
+  createLinkTag('css/styles.css');
+  createLinkTag('https://unpkg.com/leaflet@1.3.1/dist/leaflet.css');
+} */
+
+/* lazyLoadCSS = () =>{
+  window.addEventListener('load', loadCSS);
+}; */
+
+/**
+* @description
+  This method will fetch images as user scrolls down.
+*/
 lazyLoadImages = () => {
   if ("IntersectionObserver" in window) {
     window.lazyImageObserver = new IntersectionObserver(function (entries, observer) {
       entries.forEach(function (entry) {
+        //If portion of the image comes under viewport then fetch it.
         if (entry.isIntersecting) {
           let lazyImage = entry.target;
           lazyImage.src = lazyImage.dataset.src;
