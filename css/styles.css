@@ -457,38 +457,11 @@ table tr:nth-child(2n+1) {
 }
 /*=======================Media Queries=========================**/
 
-/* Mobile devices */
-@media screen and (max-width: 450px) {
-
-  nav h1 a {
-    padding: 20px;
-  }
-
-  .filter-options {
-    flex-wrap: wrap;
-    padding: 2% 0;
-  }
-
-  .filter-options h2 {
-    width: 100% !important;
-    margin: 1% 0 1% 2.5%;
-    text-align: center;
-  }
-
-  label {
-    margin: 1% 0 0 2.5%;
-  }
-
-  .filter-options select {
-    width: 94% !important;
-    /* TODO: Improvements */
-    /* margin: 1.5% 2.5%; */
-  }
-
+@media screen and (max-width: 950px) {
   #restaurants-list li {
-		width: 85vw;
+		width: 28%;
+		margin: 1%;
 	}
-
 }
 
 /* Tablets */
@@ -526,5 +499,46 @@ table tr:nth-child(2n+1) {
 
   #restaurant-cuisine {
 		width: 100%;
+  }
+
+  #restaurants-list li {
+		width: 44%;
+		margin: 1%;
 	}
+}
+
+/* Mobile devices */
+@media screen and (max-width: 450px) {
+
+  nav h1 a {
+    padding: 20px;
+  }
+
+  .filter-options {
+    flex-wrap: wrap;
+    padding: 2% 0;
+  }
+
+  .filter-options h2 {
+    width: 100% !important;
+    margin: 1% 0 1% 2.5%;
+    text-align: center;
+  }
+
+  label {
+    margin: 1% 0 0 2.5%;
+  }
+
+  .filter-options select {
+    width: 94% !important;
+    /* TODO: Improvements */
+    /* margin: 1.5% 2.5%; */
+  }
+
+  #restaurants-list li {
+    width: 85vw;
+    margin: 4% 2%;
+		min-height: 0;
+	}
+
 }
