@@ -156,13 +156,13 @@ createRestaurantHTML = (restaurant) => {
   image.src = '/img/placeholder.webp';
   image.dataset.src = DBHelper.imageUrlForRestaurant(restaurant);
   image.dataset.srcset = DBHelper.genResponsiveImgUrlForRestaurant(restaurant);
-  image.alt = `Image of ${restaurant.name} Restaurant`;
+  image.alt = `${restaurant.name} Restaurant`;
   // image.srcset = DBHelper.genResponsiveImgUrlForRestaurant(restaurant);
   image.tabIndex = 0;
   window.lazyImageObserver.observe(image);
   li.append(image);
 
-  const name = document.createElement('h1');
+  const name = document.createElement('h2');
   name.innerHTML = restaurant.name;
   name.tabIndex = 0;
   li.append(name);
