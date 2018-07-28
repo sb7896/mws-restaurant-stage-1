@@ -219,7 +219,7 @@ class DBHelper {
    */
   static genResponsiveImgUrlForRestaurant(restaurant) {
     let imageId = restaurant.photograph;
-    let srcSet = `/img/${imageId}-400_small.jpg 400w, /img/${imageId}-650_medium.jpg 650w, /img/${imageId}-800_large.jpg 800w,`;
+    let srcSet = `/img/${imageId}-400_small.webp 400w, /img/${imageId}-650_medium.webp 650w, /img/${imageId}-800_large.webp 800w,`;
     return srcSet;
   }
 

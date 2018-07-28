@@ -8,6 +8,7 @@ var filesToCache = [
     '/js/dbhelper.js',
     '/js/main.js',
     '/js/restaurant_info.js',
+    '/js/idb.js',
     'https://unpkg.com/leaflet@1.3.1/dist/leaflet.js',
     'https://unpkg.com/leaflet@1.3.1/dist/leaflet.css'
 ];
@@ -37,7 +38,7 @@ self.addEventListener('activate', function(event) {
 self.addEventListener('fetch', function(event) {
   var requestUrl = new URL(event.request.url);
 
-  if (/\.(jpe?g|png).*$/.test(requestUrl.pathname)) {
+  if (/\.(jpe?g|png|webp).*$/.test(requestUrl.pathname)) {
      event.respondWith(cachePhotos(event.request));
      return;
   }
