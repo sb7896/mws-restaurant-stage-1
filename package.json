@@ -6,7 +6,7 @@
     "url": "https://github.com/sb7896/mws-restaurant-stage-1.git"
   },
   "devDependencies": {
-    "browser-sync": "^2.24.6",
+    "browser-sync": "^2.24.7",
     "del": "^3.0.0",
     "grunt-contrib-clean": "~0.6.0",
     "grunt-contrib-copy": "~0.8.0",
@@ -15,12 +15,13 @@
     "gulp-concat": "^2.6.1",
     "gulp-eslint": "^5.0.0",
     "gulp-gzip": "^1.4.2",
-    "gulp-imagemin": "*",
+    "gulp-imagemin": "^4.1.0",
     "gulp-sourcemaps": "*",
     "gulp-uglify": "^3.0.1",
     "gulp-uglify-es": "^1.0.4",
     "gulp-uglifycss": "^1.1.0",
-    "gulp-webp": "*"
+    "gulp-webp": "^3.0.0",
+    "run-sequence": "^2.2.1"
   },
   "dependencies": {
     "grunt": "^0.4.5",

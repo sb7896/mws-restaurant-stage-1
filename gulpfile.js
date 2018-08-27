@@ -9,6 +9,7 @@ var uglifyjs = require('gulp-uglify-es').default;
 var uglifycss = require('gulp-uglifycss');
 var gzip = require('gulp-gzip');
 var webp = require('gulp-webp');
+var runSequence = require('run-sequence');
 
 gulp.task('default', ['clean', 'copy-html', 'copy-icons', 'jpgtowebp',
         'styles', 'scripts', 'service-worker', 'copy-manifest'
@@ -24,16 +25,20 @@ gulp.task('default', ['clean', 'copy-html', 'copy-icons', 'jpgtowebp',
         });
     });
 
-gulp.task('dist', [
-    'clean',
-    'copy-html',
-    'copy-icons',
-    'jpgtowebp',
-    'styles',
-    'scripts-dist',
-    'service-worker',
-    'copy-manifest'
-],function(){
+gulp.task('dist', function (done) {
+
+    runSequence('clean', [
+        'copy-html',
+        'copy-icons',
+        'jpgtowebp',
+        'styles',
+        'scripts-dist',
+        'service-worker',
+        'copy-manifest'
+    ], function () {
+        done();
+    });
+
     browserSync.init({
         server: './dist'
     });
