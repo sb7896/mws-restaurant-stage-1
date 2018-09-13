@@ -148,7 +148,6 @@ fetchRestaurantReviews = () => {
 
     if (err || !reviews) {
       console.log(`No reviews for restaurant id ${restaurantID}`);
-      return;
     }
 
     fillReviewsHTML(reviews);

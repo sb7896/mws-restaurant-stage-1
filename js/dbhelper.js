@@ -45,7 +45,7 @@ class DBHelper {
       restaurantListStore.createIndex('ids', 'id');
 
       var reviewsStore = upgradeDb.createObjectStore(RESTAURANT_REVIEWS_OBJ_STORE, {
-        keyPath: 'id'
+        keyPath: 'id' //id would be the primary key for stored object.
       });
       reviewsStore.createIndex('restaurantId', 'restaurant_id');
     });
@@ -262,6 +262,18 @@ class DBHelper {
     return marker;
   }
 
+  /**
+   * @description
+   * This function will return all the reviews for a particular restaurant from indexedDB.
+   */
+  static getReviewsFromIDBCache(restaurantId) {
+    return this.dbPromise.then(db => {
+      var tx = db.transaction(RESTAURANT_REVIEWS_OBJ_STORE);
+      var reviewsStore = tx.objectStore(RESTAURANT_REVIEWS_OBJ_STORE);
+      return reviewsStore.index('restaurantId').getAll(parseInt(restaurantId));
+    });
+  }
+
    /**
    * @description
    * Fetch restaurant reviews.
@@ -317,23 +329,52 @@ class DBHelper {
    * @param {function} callback
    */
   static fetchReviewsById(restaurantID, callback) {
-    /**
-     * If data is not cached then make a network request.
-     */
-    fetch(`${DBHelper.REVIEWS_BY_ID_URL}${restaurantID}`).then(response => {
-      //If request is unsuccessfull then throw error.
-      if (!response.ok) {
-        throw new Error(response.statusText);
+
+    var self = this;
+
+    DBHelper.getReviewsFromIDBCache(restaurantID).then(reviews => {
+      /**
+       * Check if reviews are already cached in Indexed DB.
+       */
+      if (reviews.length > 0) {
+        callback(null, reviews);
+
+      } else {
+        /**
+         * If data is not cached then make a network request.
+         */
+        fetch(`${DBHelper.REVIEWS_BY_ID_URL}${restaurantID}`).then(response => {
+          //If request is unsuccessfull then throw error.
+          if (!response.ok) {
+            throw new Error(response.statusText);
+          }
+          //convert data in response received from server to json.
+          return response.json();
+
+        }).then(reviews => {
+          DBHelper.addReviewsToIDB(reviews);
+          callback(null, reviews);
+
+        }).catch(error => {
+          callback(error, null);
+        });
       }
-      //convert data in response received from server to json.
-      return response.json();
+    });
+  }
 
-    }).then(reviews => {
-      // DBHelper.addReviewsToIDB(reviews);
-      callback(null, reviews);
-
-    }).catch(error => {
-      callback(error, null);
+  /**
+   * @description This method will add reviews to IDB
+   * @param {string} reviews - Array of reviews
+   */
+  static addReviewsToIDB(reviews) {
+    var self = this;
+    reviews.forEach(review => {
+      self.dbPromise.then(db => {
+        var tx = db.transaction(RESTAURANT_REVIEWS_OBJ_STORE, 'readwrite');
+        var reviewsStore = tx.objectStore(RESTAURANT_REVIEWS_OBJ_STORE);
+        reviewsStore.put(review);
+        return tx.complete;
+      });
     });
   }
 
