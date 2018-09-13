@@ -46,7 +46,7 @@ fetchRestaurantFromURL = (callback) => {
   }
   const id = getParameterByName('id');
   if (!id) { // no id found in URL
-    error = 'No restaurant id in URL'
+    error = 'No restaurant id in URL';
     callback(error, null);
   } else {
     DBHelper.fetchRestaurantById(id, (error, restaurant) => {
@@ -97,7 +97,8 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
     fillRestaurantHoursHTML();
   }
   // fill reviews
-  fillReviewsHTML();
+  // fillReviewsHTML();
+  fetchRestaurantReviews();
 };
 
 /**
@@ -130,6 +131,28 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 
     hours.appendChild(row);
   }
+};
+
+/**
+ * Fetch Restaurant reviews
+ */
+fetchRestaurantReviews = () => {
+  const restaurantID = getParameterByName("id");
+
+  if (!restaurantID) {
+    console.error('No restaurant id in URL');
+    return;
+  }
+
+  DBHelper.fetchReviewsById(restaurantID, (err, reviews) => {
+
+    if (err || !reviews) {
+      console.log(`No reviews for restaurant id ${restaurantID}`);
+      return;
+    }
+
+    fillReviewsHTML(reviews);
+  });
 };
 
 /**
