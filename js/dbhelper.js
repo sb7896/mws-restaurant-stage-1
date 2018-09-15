@@ -91,7 +91,7 @@ class DBHelper {
 
         }).then(restaurants => {
           //processing the json data sent from the previous callback function.
-          DBHelper.addRestaurantsToIDB(restaurants);
+          DBHelper.saveDataToIDB(restaurants, RESTAURANT_LIST_OBJ_STORE);
           callback(null, restaurants);
 
         }).catch(error => {
@@ -99,42 +99,58 @@ class DBHelper {
         });
       }
     });
-    }
+  }
 
-    /**
-     * @description This method will add restaurant data to IDB
-     * @param {string} restaurants - Array of restaurants
-     */
-    static addRestaurantsToIDB (restaurants) {
-      var self = this;
-      restaurants.forEach(restaurant => {
-        self.dbPromise.then(db => {
-          var tx = db.transaction(RESTAURANT_LIST_OBJ_STORE, 'readwrite');
-          var restaurantListStore = tx.objectStore(RESTAURANT_LIST_OBJ_STORE);
-          restaurantListStore.put(restaurant);
+  /**
+   * @description This method will save restaurant data to IDB.
+   * @param {Array} data - Array of objects to save.
+   * @param {string} storeName - Name of the store to save object into.
+   */
+  static saveDataToIDB(data, storeName) {
+
+    return this.dbPromise.then(db => {
+
+      if (!db) {
+        return;
+      }
+
+      switch (storeName) {
+
+        case RESTAURANT_LIST_OBJ_STORE:
+          var tx = db.transaction(storeName, "readwrite");
+          const restaurantListStore = tx.objectStore(storeName);
+          data.forEach(restaurant => {
+            restaurantListStore.put(restaurant);
+          });
           return tx.complete;
-        });
-      });
-    }
 
-    /**
-     * Fetch a restaurant by its ID.
-     */
-    static fetchRestaurantById(id, callback) {
-      // fetch all restaurants with proper error handling.
-      DBHelper.fetchRestaurants((error, restaurants) => {
-        if (error) {
-          callback(error, null);
-        } else {
-          const restaurant = restaurants.find(r => r.id == id);
-          if (restaurant) { // Got the restaurant
-            callback(null, restaurant);
-          } else { // Restaurant does not exist in the database
-            callback('Restaurant does not exist', null);
-          }
+        case RESTAURANT_REVIEWS_OBJ_STORE:
+          var tx = db.transaction(storeName, "readwrite");
+          const reviewsStore = tx.objectStore(storeName);
+          reviewsStore.put(data);
+          return tx.complete;
+      }
+    });
+  }
+
+  /**
+   * Fetch a restaurant by its ID.
+   */
+  static fetchRestaurantById(id, callback) {
+    // fetch all restaurants with proper error handling.
+    DBHelper.fetchRestaurants((error, restaurants) => {
+      if (error) {
+        callback(error, null);
+      } else {
+        const restaurant = restaurants.find(r => r.id == id);
+        if (restaurant) { // Got the restaurant
+          callback(null, restaurant);
+        } else { // Restaurant does not exist in the database
+          callback('Restaurant does not exist', null);
         }
-      });
-    }
+      }
+    });
+  }
 
   /**
    * Fetch restaurants by a cuisine type with proper error handling.
@@ -292,7 +308,7 @@ class DBHelper {
       return response.json();
 
     }).then(reviews => {
-      // DBHelper.addReviewsToIDB(reviews);
+      // DBHelper.saveDataToIDB(reviews, RESTAURANT_REVIEWS_OBJ_STORE);
       callback(null, reviews);
 
     }).catch(error => {
@@ -352,7 +368,9 @@ class DBHelper {
           return response.json();
 
         }).then(reviews => {
-          DBHelper.addReviewsToIDB(reviews);
+          reviews.forEach(review => {
+            DBHelper.saveDataToIDB(review, RESTAURANT_REVIEWS_OBJ_STORE);
+          });
           callback(null, reviews);
 
         }).catch(error => {
@@ -362,20 +380,22 @@ class DBHelper {
     });
   }
 
-  /**
-   * @description This method will add reviews to IDB
-   * @param {string} reviews - Array of reviews
-   */
-  static addReviewsToIDB(reviews) {
-    var self = this;
-    reviews.forEach(review => {
-      self.dbPromise.then(db => {
-        var tx = db.transaction(RESTAURANT_REVIEWS_OBJ_STORE, 'readwrite');
-        var reviewsStore = tx.objectStore(RESTAURANT_REVIEWS_OBJ_STORE);
-        reviewsStore.put(review);
-        return tx.complete;
-      });
-    });
+  static submitReview(reviewObject) {
+
+    return fetch(DBHelper.REVIEWS_URL, {
+      body: JSON.stringify(reviewObject),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: "POST"
+
+    }).then(response => {
+      response.json().then(data => {
+        DBHelper.saveDataToIDB(data, RESTAURANT_REVIEWS_OBJ_STORE);
+        return data;
+      })
+      // console.log('error');
+    }).catch(error => {});
   }
 
 }

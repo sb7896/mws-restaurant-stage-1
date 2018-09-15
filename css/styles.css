@@ -43,7 +43,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 	display: block;
 }
 
-label {
+.filter-options label {
   color: white;
   font-size: 1rem;
 }
@@ -63,7 +63,8 @@ label {
   outline: 1px solid;
 }
 
-h1:focus, h2:focus, p:focus, td:focus{
+h1:focus, h2:focus, p:focus,
+td:focus, input:focus, textarea:focus {
   outline: 1px solid orangered;
 }
 
@@ -334,7 +335,9 @@ table tr:nth-child(2n+1) {
   background-color: white;
 }
 
-#restaurant-container, #reviews-container {
+#restaurant-container,
+#reviews-container,
+#add-review-container {
   border-bottom: 1px solid #d9d9d9;
   border-top: 1px solid #fff;
   /* TODO: */
@@ -347,10 +350,15 @@ table tr:nth-child(2n+1) {
 } */
 
 #reviews-container {
-  padding: 10px 1.9% 95px;
+  padding: 10px 1.9% 0;
 }
 
-#reviews-container h3 {
+#add-review-container {
+  padding: 10px 1.9% 110px;
+}
+
+#reviews-container h3,
+#add-review-container h3 {
   color: #8F4100;
   font-size: 16pt;
   font-weight: 300;
@@ -458,6 +466,38 @@ table tr:nth-child(2n+1) {
 .leaflet-container a {
   color: blue !important;
 }
+
+/* .review-form {
+  padding: 3%;
+  box-shadow: 0px 1px 8px 1px rgba(18, 25, 29, 0.2)
+} */
+
+.review-form div {
+  padding-bottom: 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+.review-form input,
+.review-form select,
+.review-form textarea,
+.review-form button {
+  padding: 0.7em;
+}
+
+.review-form button {
+  color: #fff;
+  background-color: #8F4100;
+  margin-top: 10px;
+  border: none;
+  text-transform: uppercase;
+}
+
+.review-form button:hover {
+  background-color: black;
+  outline: 2px solid orangered;
+}
+
 /*=======================Media Queries=========================**/
 
 @media screen and (max-width: 950px) {
@@ -489,7 +529,8 @@ table tr:nth-child(2n+1) {
 
   #breadcrumb,
   #restaurant-container,
-	#reviews-container {
+  #reviews-container,
+  #add-review-container {
 		padding-left: 3%;
 		padding-right: 3%;
 		width: 94%;

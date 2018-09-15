@@ -209,7 +209,7 @@ createReviewHTML = (review) => {
   date.append(calSpan);
 
   const dateSpan = document.createElement('span');
-  dateSpan.innerHTML = review.date;
+  dateSpan.innerHTML = new Date(review.createdAt).toDateString();
   date.append(dateSpan);
 
   header.appendChild(date);
@@ -254,3 +254,25 @@ getParameterByName = (name, url) => {
     return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 };
+
+const reviewForm = document.querySelector('.review-form');
+/**
+ * Submit review which is entered by user.
+ */
+reviewForm.addEventListener('submit', event => {
+  event.preventDefault();
+  const reviewObject = {
+    restaurant_id: self.restaurant.id,
+    name: reviewForm.querySelector('#name').value,
+    rating: reviewForm.querySelector('#rating').value,
+    comments: reviewForm.querySelector('#comment').value,
+  }
+
+  DBHelper.submitReview(reviewObject).then(data => {
+    const reviewList = document.querySelector('#reviews-list');
+    reviewObject.createdAt = new Date().getTime();
+    reviewObject.updatedAt = new Date().getTime();
+    reviewList.appendChild(createReviewHTML(reviewObject));
+    reviewForm.reset();
+  }).catch(error => console.log(error));
+})
