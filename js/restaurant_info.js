@@ -270,8 +270,6 @@ reviewForm.addEventListener('submit', event => {
 
   DBHelper.submitReview(reviewObject).then(data => {
     const reviewList = document.querySelector('#reviews-list');
-    reviewObject.createdAt = new Date().getTime();
-    reviewObject.updatedAt = new Date().getTime();
     reviewList.appendChild(createReviewHTML(reviewObject));
     reviewForm.reset();
   }).catch(error => console.log(error));

@@ -5,6 +5,7 @@
 const APP_URL = 'http://localhost:1337';// Change this according to your configuration
 const RESTAURANT_LIST_OBJ_STORE = 'restaurantList';
 const RESTAURANT_REVIEWS_OBJ_STORE = 'restaurantReviews';
+const RESTAURANT_REVIEWS_OFFLINE_OBJ_STORE = 'restaurantReviewsOffline';
 
 class DBHelper {
 
@@ -48,6 +49,11 @@ class DBHelper {
         keyPath: 'id' //id would be the primary key for stored object.
       });
       reviewsStore.createIndex('restaurantId', 'restaurant_id');
+
+      var offlineStore = upgradeDb.createObjectStore(RESTAURANT_REVIEWS_OFFLINE_OBJ_STORE, {
+        keyPath: 'updatedAt' //updatedAt would be the primary key for stored object.
+      });
+
     });
   }
 
@@ -128,6 +134,12 @@ class DBHelper {
           var tx = db.transaction(storeName, "readwrite");
           const reviewsStore = tx.objectStore(storeName);
           reviewsStore.put(data);
+          return tx.complete;
+
+        case RESTAURANT_REVIEWS_OFFLINE_OBJ_STORE:
+          var tx = db.transaction(storeName, "readwrite");
+          const offlineStore = tx.objectStore(storeName);
+          offlineStore.put(data);
           return tx.complete;
       }
     });
@@ -395,7 +407,15 @@ class DBHelper {
         return data;
       })
       // console.log('error');
-    }).catch(error => {});
+    }).catch(error => {
+      /**
+       * User is offline, add an updatedAt and createdAt
+       * property to the review object and store it in the IDB.
+			 */
+      reviewObject.createdAt = new Date().getTime();
+      reviewObject.updatedAt = new Date().getTime();
+      DBHelper.saveDataToIDB(reviewObject, RESTAURANT_REVIEWS_OFFLINE_OBJ_STORE);
+    });
   }
 
 }
