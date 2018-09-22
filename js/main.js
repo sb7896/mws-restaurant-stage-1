@@ -230,7 +230,14 @@ registerServiceWorker = () => {
 
     navigator.serviceWorker.ready.then(function (registration) {
       console.log('Service Worker Ready');
+      // Request a one-off sync
+      return registration.sync.register('outbox');
+    }).catch(function (error) {
+      // System was unable to register for a sync,
+      console.log(error);
     });
+  } else {
+    console.log('Serviceworker not supported');
   }
 };
 

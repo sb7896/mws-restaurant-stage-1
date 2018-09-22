@@ -5,7 +5,7 @@
 const APP_URL = 'http://localhost:1337';// Change this according to your configuration
 const RESTAURANT_LIST_OBJ_STORE = 'restaurantList';
 const RESTAURANT_REVIEWS_OBJ_STORE = 'restaurantReviews';
-const RESTAURANT_REVIEWS_OFFLINE_OBJ_STORE = 'restaurantReviewsOffline';
+const OUTBOX_OBJ_STORE = 'outbox';
 
 class DBHelper {
 
@@ -50,7 +50,7 @@ class DBHelper {
       });
       reviewsStore.createIndex('restaurantId', 'restaurant_id');
 
-      var offlineStore = upgradeDb.createObjectStore(RESTAURANT_REVIEWS_OFFLINE_OBJ_STORE, {
+      var offlineStore = upgradeDb.createObjectStore(OUTBOX_OBJ_STORE, {
         keyPath: 'updatedAt' //updatedAt would be the primary key for stored object.
       });
 
@@ -97,7 +97,9 @@ class DBHelper {
 
         }).then(restaurants => {
           //processing the json data sent from the previous callback function.
-          DBHelper.saveDataToIDB(restaurants, RESTAURANT_LIST_OBJ_STORE);
+          restaurants.forEach(restaurant => {
+            DBHelper.saveDataToIDB(restaurant, RESTAURANT_LIST_OBJ_STORE);
+          });
           callback(null, restaurants);
 
         }).catch(error => {
@@ -109,7 +111,7 @@ class DBHelper {
 
   /**
    * @description This method will save restaurant data to IDB.
-   * @param {Array} data - Array of objects to save.
+   * @param {object} data - object to save.
    * @param {string} storeName - Name of the store to save object into.
    */
   static saveDataToIDB(data, storeName) {
@@ -120,28 +122,10 @@ class DBHelper {
         return;
       }
 
-      switch (storeName) {
-
-        case RESTAURANT_LIST_OBJ_STORE:
-          var tx = db.transaction(storeName, "readwrite");
-          const restaurantListStore = tx.objectStore(storeName);
-          data.forEach(restaurant => {
-            restaurantListStore.put(restaurant);
-          });
-          return tx.complete;
-
-        case RESTAURANT_REVIEWS_OBJ_STORE:
-          var tx = db.transaction(storeName, "readwrite");
-          const reviewsStore = tx.objectStore(storeName);
-          reviewsStore.put(data);
-          return tx.complete;
-
-        case RESTAURANT_REVIEWS_OFFLINE_OBJ_STORE:
-          var tx = db.transaction(storeName, "readwrite");
-          const offlineStore = tx.objectStore(storeName);
-          offlineStore.put(data);
-          return tx.complete;
-      }
+      let tx = db.transaction(storeName, "readwrite");
+      const store = tx.objectStore(storeName);
+      store.put(data);
+      return tx.complete;
     });
   }
 
@@ -320,7 +304,9 @@ class DBHelper {
       return response.json();
 
     }).then(reviews => {
-      // DBHelper.saveDataToIDB(reviews, RESTAURANT_REVIEWS_OBJ_STORE);
+      reviews.forEach(review => {
+        DBHelper.saveDataToIDB(review, RESTAURANT_REVIEWS_OBJ_STORE);
+      });
       callback(null, reviews);
 
     }).catch(error => {
@@ -414,7 +400,7 @@ class DBHelper {
 			 */
       reviewObject.createdAt = new Date().getTime();
       reviewObject.updatedAt = new Date().getTime();
-      DBHelper.saveDataToIDB(reviewObject, RESTAURANT_REVIEWS_OFFLINE_OBJ_STORE);
+      DBHelper.saveDataToIDB(reviewObject, OUTBOX_OBJ_STORE);
     });
   }
 
