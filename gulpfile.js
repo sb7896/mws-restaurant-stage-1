@@ -39,9 +39,9 @@ gulp.task('dist', function (done) {
         done();
     });
 
-    browserSync.init({
+    /* browserSync.init({
         server: './dist'
-    });
+    }); */
 });
 
 gulp.task('clean', function () {
