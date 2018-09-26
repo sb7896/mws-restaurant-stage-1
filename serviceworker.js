@@ -41,7 +41,7 @@ self.addEventListener('activate', function(event) {
 self.addEventListener('fetch', function(event) {
   var requestUrl = new URL(event.request.url);
 
-  if (/\.(jpe?g|png|webp).*$/.test(requestUrl.pathname)) {
+  if (/\.(png|webp).*$/.test(requestUrl.pathname)) {
      event.respondWith(cachePhotos(event.request));
      return;
   }
