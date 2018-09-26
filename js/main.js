@@ -162,6 +162,35 @@ createRestaurantHTML = (restaurant) => {
   window.lazyImageObserver.observe(image);
   li.append(image);
 
+  const favP = document.createElement('p');
+  favP.tabIndex = 0;
+  favP.style = 'font-size: 2.5em; float: right; color: red; cursor: pointer;';
+  favP.setAttribute('role', 'button');
+  favP.setAttribute('aria-label', 'Mark restaurant as favorite');
+  let isFavorite = restaurant.is_favorite == undefined ? false : JSON.parse(restaurant.is_favorite);
+
+  if(isFavorite == true){
+    favP.innerHTML = '★';
+    favP.setAttribute('aria-pressed', true);
+  } else {
+    favP.innerHTML = '☆';
+    favP.setAttribute('aria-pressed', false);
+  }
+
+  favP.addEventListener('click', event => {
+    if(favP.innerHTML == '★'){
+      favP.innerHTML = '☆';
+      favP.setAttribute('aria-pressed', false);
+    } else {
+      favP.innerHTML = '★';
+      favP.setAttribute('aria-pressed', true);
+    }
+
+    DBHelper.toggleFavorite(restaurant, !isFavorite);
+  });
+
+  li.append(favP);
+
   const name = document.createElement('h2');
   name.innerHTML = restaurant.name;
   name.tabIndex = 0;

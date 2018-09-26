@@ -404,5 +404,25 @@ class DBHelper {
     });
   }
 
+  static toggleFavorite(restaurant, isFavorite) {
+
+    fetch(`${DBHelper.DATABASE_URL}/${restaurant.id}/?is_favorite=${isFavorite}`, {
+      method: 'PUT'
+    })
+    .then(response => {
+      response.json().then(restaurantObj => {
+          DBHelper.saveDataToIDB(restaurantObj, RESTAURANT_LIST_OBJ_STORE);
+          return restaurantObj;
+
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    })
+    .catch(error => {
+      console.log(error);
+    });
+  }
+
 }
 
