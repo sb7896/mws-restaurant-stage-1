@@ -253,15 +253,6 @@ nav h1 a {
   padding-right: 5px;
 }
 
-.fav-button {
-  font-size: 2.5em;
-  float: right;
-  color: red;
-  cursor: pointer;
-  background: white;
-  border: none;
-}
-
 /* ====================== Restaurant Details ====================== */
 .inside header {
   position: fixed;
