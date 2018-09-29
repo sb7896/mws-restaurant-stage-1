@@ -162,34 +162,32 @@ createRestaurantHTML = (restaurant) => {
   window.lazyImageObserver.observe(image);
   li.append(image);
 
-  const favP = document.createElement('p');
-  favP.tabIndex = 0;
-  favP.style = 'font-size: 2.5em; float: right; color: red; cursor: pointer;';
-  favP.setAttribute('role', 'button');
-  favP.setAttribute('aria-label', 'Mark restaurant as favorite');
+  const favButton = document.createElement('button');
+  favButton.tabIndex = 0;
+  favButton.className = 'fav-button';
   let isFavorite = restaurant.is_favorite == undefined ? false : JSON.parse(restaurant.is_favorite);
 
   if(isFavorite == true){
-    favP.innerHTML = '★';
-    favP.setAttribute('aria-pressed', true);
+    favButton.innerHTML = '★';
+    favButton.setAttribute('aria-label', 'Remove as favorite');
   } else {
-    favP.innerHTML = '☆';
-    favP.setAttribute('aria-pressed', false);
+    favButton.innerHTML = '☆';
+    favButton.setAttribute('aria-label', 'Mark restaurant as favorite');
   }
 
-  favP.addEventListener('click', event => {
-    if(favP.innerHTML == '★'){
-      favP.innerHTML = '☆';
-      favP.setAttribute('aria-pressed', false);
+  favButton.addEventListener('click', event => {
+    if(favButton.innerHTML == '★'){
+      favButton.innerHTML = '☆';
+      favButton.setAttribute('aria-label', 'Mark restaurant as favorite');
     } else {
-      favP.innerHTML = '★';
-      favP.setAttribute('aria-pressed', true);
+      favButton.innerHTML = '★';
+      favButton.setAttribute('aria-label', 'Remove as favorite');
     }
 
     DBHelper.toggleFavorite(restaurant, !isFavorite);
   });
 
-  li.append(favP);
+  li.append(favButton);
 
   const name = document.createElement('h2');
   name.innerHTML = restaurant.name;
