@@ -264,7 +264,7 @@ reviewForm.addEventListener('submit', event => {
   const reviewObject = {
     restaurant_id: self.restaurant.id,
     name: reviewForm.querySelector('#name').value,
-    rating: reviewForm.querySelector('#rating').value,
+    rating: self.restaurant.rating,
     comments: reviewForm.querySelector('#comment').value,
   }
 
@@ -273,4 +273,75 @@ reviewForm.addEventListener('submit', event => {
     reviewList.appendChild(createReviewHTML(reviewObject));
     reviewForm.reset();
   }).catch(error => console.log(error));
-})
+});
+
+const ratingStarArray = document.querySelectorAll('.rating-star');
+const CLASS_STAR_EMPTY = 'star-empty';
+const CLASS_STAR_FILLED = 'star-filled';
+const CLASS_SELECTED = 'selected';
+
+ratingStarArray.forEach(ratingStar => {
+
+  ratingStar.addEventListener('mouseover', event => {
+    var rating = parseInt(event.target.dataset.rating);
+    // fill all the stars
+    addAndRemoveClass(ratingStarArray, CLASS_STAR_FILLED, CLASS_STAR_EMPTY);
+    // de-select all the stars to the right of the mouse
+    deSelectStarsToRight(rating, CLASS_STAR_EMPTY, CLASS_STAR_FILLED);
+  });
+
+  ratingStar.addEventListener('mouseleave', event => {
+    addAndRemoveClass(ratingStarArray, CLASS_STAR_EMPTY, CLASS_STAR_FILLED);
+  });
+
+  ratingStar.addEventListener('click', event => {
+    setRating(parseInt(event.target.dataset.rating));
+  });
+
+  ratingStar.addEventListener('keydown', event => {
+    // if Spacebar or Enter button is pressed while selecting a star
+    if (event.code === "Space" || event.code === "Enter") {
+      setRating(parseInt(event.target.dataset.rating));
+    }
+  });
+
+});
+
+/**
+ * @description
+ * This function will fill all the stars.
+ * @param {Array} elemArray
+ * @param {string} addClass
+ * @param {string} removeClass
+ */
+function addAndRemoveClass(elemArray, addClass, removeClass) {
+  elemArray.forEach(element => {
+    element.classList.add(addClass);
+    element.classList.remove(removeClass);
+  });
+}
+
+/**
+ * @description
+ * This function will de-select all the stars to the right of the mouse
+ * @param {string} rating
+ * @param {string} addClass
+ * @param {string} removeClass
+ */
+function deSelectStarsToRight(rating, addClass, removeClass){
+  let elemArray = document.querySelectorAll('#rating' + rating + '~.rating-star');
+  addAndRemoveClass(elemArray, addClass, removeClass);
+}
+
+/**
+ * @description
+ * Sets the rating
+ * @param {number} rating
+ */
+function setRating(rating) {
+  self.restaurant.rating = rating;
+  // select the stars before the selected star by assigning the '.selected' class.
+  addAndRemoveClass(ratingStarArray, CLASS_SELECTED ,CLASS_STAR_EMPTY);
+  // deselect all the stars to the right of the selected star.
+  deSelectStarsToRight(rating, CLASS_STAR_EMPTY, CLASS_SELECTED);
+}

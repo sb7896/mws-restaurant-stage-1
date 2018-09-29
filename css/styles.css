@@ -63,8 +63,9 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
   outline: 1px solid;
 }
 
-h1:focus, h2:focus, p:focus,
-td:focus, input:focus, textarea:focus {
+h1:focus, h2:focus, h3:focus, p:focus,
+td:focus, input:focus, textarea:focus,
+label:focus {
   outline: 1px solid orangered;
 }
 
@@ -484,6 +485,10 @@ table tr:nth-child(2n+1) {
 .review-form div {
   padding-bottom: 5px;
   display: flex;
+  /* flex-direction: column; */
+}
+
+.review-form div:nth-child(2n+1) {
   flex-direction: column;
 }
 
@@ -491,7 +496,8 @@ table tr:nth-child(2n+1) {
 .review-form select,
 .review-form textarea,
 .review-form button {
-  padding: 0.7em;
+  padding: 0.6em;
+  border: none;
 }
 
 .review-form button {
@@ -502,9 +508,39 @@ table tr:nth-child(2n+1) {
   text-transform: uppercase;
 }
 
-.review-form button:hover {
+.review-form button:hover,
+.review-form button:focus {
   background-color: black;
   outline: 2px solid orangered;
+}
+
+#stars {
+  margin: 10px 0 -30px;
+}
+
+#rating-group{
+  padding-bottom: 35px;
+  line-height: 1;
+  margin-left: 10px;
+}
+
+.star-empty:before {
+  content: "☆";
+  color: darkgrey;
+}
+
+.star-filled:before,
+.selected:before {
+  content: "★";
+  color: #8F4100;
+}
+
+.rating-star {
+  cursor: pointer;
+  width: 1em;
+	display: inline-block;
+  font-size: 30px;
+  font-style: normal;
 }
 
 /*=======================Media Queries=========================**/
@@ -580,6 +616,10 @@ table tr:nth-child(2n+1) {
 
   label {
     margin: 1% 0 0 2.5%;
+  }
+
+  .review-form label {
+    margin: 1px;
   }
 
   .filter-options select {
