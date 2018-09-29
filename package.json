@@ -1,18 +1,26 @@
 {
   "name": "restaurant-reviews",
   "version": "1.0.0",
+  "description": "Web app to view restaurants and their reviews",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "gulp dist"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/sb7896/mws-restaurant-stage-1.git"
   },
   "devDependencies": {
     "browser-sync": "^2.24.7",
+    "connect-gzip": "^0.1.6",
     "del": "^3.0.0",
     "grunt-contrib-clean": "~0.6.0",
     "grunt-contrib-copy": "~0.8.0",
     "grunt-mkdir": "~0.1.2",
     "gulp-babel": "*",
     "gulp-concat": "^2.6.1",
+    "gulp-connect": "^5.6.1",
     "gulp-eslint": "^5.0.0",
     "gulp-gzip": "^1.4.2",
     "gulp-imagemin": "^4.1.0",
@@ -24,6 +32,7 @@
     "run-sequence": "^2.2.1"
   },
   "dependencies": {
+    "connect-gzip-static": "^2.1.1",
     "grunt": "^0.4.5",
     "grunt-responsive-images": "^0.1.6",
     "gulp": "^3.9.1"
