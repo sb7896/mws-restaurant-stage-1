@@ -130,7 +130,7 @@ gulp.task('start', function () {
         livereload: false,
         middleware: function () {
             return [
-                connectGzip.gzip()
+                // connectGzip.gzip()
             ];
         }
     });
