@@ -7,6 +7,7 @@ var newMap;
 document.addEventListener('DOMContentLoaded', (event) => {
   DBHelper.initIDB(); //Initialize indexed db
   initMap();
+  window.addEventListener('online',  syncReviews);
 });
 
 /**
@@ -264,15 +265,22 @@ reviewForm.addEventListener('submit', event => {
   const reviewObject = {
     restaurant_id: self.restaurant.id,
     name: reviewForm.querySelector('#name').value,
-    rating: self.restaurant.rating,
+    rating: self.restaurant.rating == undefined ? 1 : self.restaurant.rating,
     comments: reviewForm.querySelector('#comment').value,
   }
 
-  DBHelper.submitReview(reviewObject).then(data => {
-    const reviewList = document.querySelector('#reviews-list');
+  const reviewList = document.querySelector('#reviews-list');
+  if (navigator.onLine) {
+    DBHelper.submitReview(reviewObject).then(data => {
+      reviewList.appendChild(createReviewHTML(data));
+    }).catch(error => console.log(error));
+
+  } else {
+    DBHelper.submitReviewOffline(reviewObject);
     reviewList.appendChild(createReviewHTML(reviewObject));
-    reviewForm.reset();
-  }).catch(error => console.log(error));
+  }
+   reviewForm.reset();
+   setRating(1);
 });
 
 const ratingStarArray = document.querySelectorAll('.rating-star');
@@ -344,4 +352,22 @@ function setRating(rating) {
   addAndRemoveClass(ratingStarArray, CLASS_SELECTED ,CLASS_STAR_EMPTY);
   // deselect all the stars to the right of the selected star.
   deSelectStarsToRight(rating, CLASS_STAR_EMPTY, CLASS_SELECTED);
+}
+
+/**
+ * @description
+ * Post reviews which are stored in the Outbox to the server.
+ */
+function syncReviews() {
+  //Get all reviews saved in outbox
+  DBHelper.getOfflineReviewsFromIDBCache().then(reviews => {
+    //Submit offline reviews to server delete the review from outbox.
+    reviews.forEach(review => {
+      DBHelper.submitReview(review, true).then(data => {
+        console.log(`Review from ${data.name} posted successfully to the server.`);
+      }).catch(error => {
+        console.log('Couldn\'t connect to network', error);
+      })
+    });
+  }).catch(error => console.log(error));
 }

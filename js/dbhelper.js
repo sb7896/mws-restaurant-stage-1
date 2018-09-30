@@ -125,7 +125,7 @@ class DBHelper {
       let tx = db.transaction(storeName, "readwrite");
       const store = tx.objectStore(storeName);
       store.put(data);
-      return tx.complete;
+      tx.complete;
     });
   }
 
@@ -286,6 +286,18 @@ class DBHelper {
     });
   }
 
+  /**
+   * @description
+   * This function will return all the reviews from Outbox.
+   */
+  static getOfflineReviewsFromIDBCache() {
+    return this.dbPromise.then(db => {
+      var tx = db.transaction(OUTBOX_OBJ_STORE);
+      var reviewsStore = tx.objectStore(OUTBOX_OBJ_STORE);
+      return reviewsStore.getAll();
+    });
+  }
+
    /**
    * @description
    * Fetch restaurant reviews.
@@ -378,30 +390,59 @@ class DBHelper {
     });
   }
 
-  static submitReview(reviewObject) {
+  /**
+   * @description
+   * This function will post review to the server, if data is posting from outbox
+   * then that data needs to be deleted by passing "deleteFromOutbox=true" flag.
+   * @param {object} reviewObject
+   * @param {boolean} deleteFromOutbox
+   */
+  static submitReview(reviewObject, deleteFromOutbox) {
 
     return fetch(DBHelper.REVIEWS_URL, {
+      method: "POST",
       body: JSON.stringify(reviewObject),
       headers: {
         'Content-Type': 'application/json'
-      },
-      method: "POST"
-
+      }
     }).then(response => {
-      response.json().then(data => {
-        DBHelper.saveDataToIDB(data, RESTAURANT_REVIEWS_OBJ_STORE);
-        return data;
+      return response.json().then(data => {
+        var promise = DBHelper.saveDataToIDB(data, RESTAURANT_REVIEWS_OBJ_STORE);
+        if(deleteFromOutbox){
+          promise.then( _ => {
+            DBHelper.deleteReviewFromIDBCache(data).then( _ => {
+              console.log(`Deleted review by ${data.name} from outbox`);
+            }).catch(error =>{
+              console.log(`Error deleting review of ${data.name} from outbox`, error);
+            });
+          });
+        }
+        return Promise.resolve(data);
       })
-      // console.log('error');
-    }).catch(error => {
-      /**
-       * User is offline, add an updatedAt and createdAt
-       * property to the review object and store it in the IDB.
-			 */
-      reviewObject.createdAt = new Date().getTime();
-      reviewObject.updatedAt = new Date().getTime();
-      DBHelper.saveDataToIDB(reviewObject, OUTBOX_OBJ_STORE);
+    }).catch(error => console.log(error));
+  }
+
+  /**
+   * @description
+   * This function will delete review from Idb.
+   */
+  static deleteReviewFromIDBCache(data) {
+    return this.dbPromise.then(db => {
+      let tx = db.transaction(OUTBOX_OBJ_STORE, 'readwrite');
+      let reviewsStore = tx.objectStore(OUTBOX_OBJ_STORE);
+      reviewsStore.delete(data.updatedAt);
+      return tx.complete;
     });
+  }
+
+  /**
+   * User is offline, add an updatedAt and createdAt
+   * property to the review object and store it in the IDB.
+   */
+  static submitReviewOffline(reviewObject) {
+    reviewObject.createdAt = new Date().getTime();
+    reviewObject.updatedAt = new Date().getTime();
+    DBHelper.saveDataToIDB(reviewObject, OUTBOX_OBJ_STORE);
   }
 
   static toggleFavorite(restaurant, isFavorite) {
